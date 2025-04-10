@@ -1,0 +1,464 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "6414e15b-1ae4-49fb-829b-239d77492f13",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Import necessary libraries\n",
+    "import pandas as pd\n",
+    "import numpy as np\n",
+    "import seaborn as sns\n",
+    "import matplotlib.pyplot as plt\n",
+    "from sklearn.model_selection import train_test_split\n",
+    "from sklearn.preprocessing import StandardScaler"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "b436b784-e60f-42a7-963b-41cb712ee498",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Load the Titanic dataset\n",
+    "data = pd.read_csv('train.csv')"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d555a472-ab97-4cac-b736-25cd3aae80ec",
+   "metadata": {},
+   "source": [
+    "### Handle Missing Values"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "8eeb4e1a-eac2-42c4-a038-ab8873e92a5f",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Missing values:\n",
+      " PassengerId      0\n",
+      "Survived         0\n",
+      "Pclass           0\n",
+      "Name             0\n",
+      "Sex              0\n",
+      "Age            177\n",
+      "SibSp            0\n",
+      "Parch            0\n",
+      "Ticket           0\n",
+      "Fare             0\n",
+      "Cabin          687\n",
+      "Embarked         2\n",
+      "dtype: int64\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Checking missing values in the dataset\n",
+    "print(\"Missing values:\\n\", data.isnull().sum())"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "4aa6f291-ec35-4008-a8f9-add612562998",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "C:\\Users\\LENOVO\\AppData\\Local\\Temp\\ipykernel_10880\\3134929415.py:2: FutureWarning: A value is trying to be set on a copy of a DataFrame or Series through chained assignment using an inplace method.\n",
+      "The behavior will change in pandas 3.0. This inplace method will never work because the intermediate object on which we are setting values always behaves as a copy.\n",
+      "\n",
+      "For example, when doing 'df[col].method(value, inplace=True)', try using 'df.method({col: value}, inplace=True)' or df[col] = df[col].method(value) instead, to perform the operation inplace on the original object.\n",
+      "\n",
+      "\n",
+      "  data['Age'].fillna(data['Age'].median(), inplace=True)\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Fill missing values in 'Age' with the median\n",
+    "data['Age'].fillna(data['Age'].median(), inplace=True)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "601a0cc7-fb6b-4083-984e-7d2d7df7611f",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "C:\\Users\\LENOVO\\AppData\\Local\\Temp\\ipykernel_10880\\2797269292.py:2: FutureWarning: A value is trying to be set on a copy of a DataFrame or Series through chained assignment using an inplace method.\n",
+      "The behavior will change in pandas 3.0. This inplace method will never work because the intermediate object on which we are setting values always behaves as a copy.\n",
+      "\n",
+      "For example, when doing 'df[col].method(value, inplace=True)', try using 'df.method({col: value}, inplace=True)' or df[col] = df[col].method(value) instead, to perform the operation inplace on the original object.\n",
+      "\n",
+      "\n",
+      "  data['Embarked'].fillna(data['Embarked'].mode()[0], inplace=True)\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Fill missing values in 'Embarked' with the most frequent value\n",
+    "data['Embarked'].fillna(data['Embarked'].mode()[0], inplace=True)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "id": "efa90925-df9b-4d1e-9497-f246f2a7e0ae",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Drop the 'Cabin' column as it has too many missing values\n",
+    "data.drop('Cabin', axis=1, inplace=True)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "id": "f88f8d83-ff1d-4828-aec4-6ad3ae7cb68f",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Missing values after filling:\n",
+      " PassengerId    0\n",
+      "Survived       0\n",
+      "Pclass         0\n",
+      "Name           0\n",
+      "Sex            0\n",
+      "Age            0\n",
+      "SibSp          0\n",
+      "Parch          0\n",
+      "Ticket         0\n",
+      "Fare           0\n",
+      "Embarked       0\n",
+      "dtype: int64\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Check again for missing values\n",
+    "print(\"Missing values after filling:\\n\", data.isnull().sum())"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d015430f-8f95-4cc7-a31a-1b541ec75e4e",
+   "metadata": {},
+   "source": [
+    "### Handle Outliers"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 22,
+   "id": "b93ae0a7-d2d7-4874-acde-02ccf234e2ea",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "image/png": "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/wDt7e0RETFu3LiIML8Dqbu7O5YuXRovvfRSzJo1y9wOoM997nNxwQUXxHnnnVe13By/cU899VS0trbG1KlT46Mf/Wg8/fTTETHy57bf/1jTQHvhhReiu7s7JkyYULV8woQJ8dxzzw3RqN4cyvPX19xu2bKlsk1DQ0Mcc8wxaRvz//8VRRFf+MIX4t3vfnecdtppEWF+B8KGDRti1qxZ0dnZGWPGjImf/OQnceqpp1YukOb2jVm6dGk8+uij8cgjj6R1vn7fmLPPPjtuu+22mDZtWjz//PNx4403xrve9a7YuHHjiJ/bYRMIZQf+09FFUQzoPyd9JOvP3Jr/aldffXWsX78+fvnLX6Z15rf/Tj755Fi3bl3s3Lkz7rzzzrjsssti9erVlfXmtv+2bt0a1157bdx3330xevTog25njvtn3rx5lf8//fTTY9asWXHiiSfGj370o/jLv/zLiBi5czts3mI49thjo7a2NhXTjh07Un3x+pTvqH21uZ04cWJ0dXXFiy++eNBtjnTXXHNN3H333fHAAw9U/VPn5veNa2hoiJNOOinOPPPMaGtrixkzZsS3vvUtczsA1q5dGzt27IiZM2dGXV1d1NXVxerVq+Pb3/521NXVVebIHA+MpqamOP300+Opp54a8V+/wyYQGhoaYubMmbFq1aqq5atWrYp3vetdQzSqN4epU6fGxIkTq+a2q6srVq9eXZnbmTNnRn19fdU2zz77bDz++ONH/PwXRRFXX3113HXXXXH//ffH1KlTq9ab34FXFEXs3bvX3A6AD3zgA7Fhw4ZYt25d5ePMM8+MSy+9NNatWxcnnHCCOR5Ae/fujd/97nfx1re+deR//Q7FnZEHU/4xxx/+8IfFpk2bis9//vNFU1NT8Yc//GGohzbs7dq1q3jssceKxx57rIiI4uabby4ee+yxyo+I3nTTTUVLS0tx1113FRs2bCg+9rGP9fmjNpMmTSp+8YtfFI8++mjx/ve/f1j8qM1Q++xnP1u0tLQUDz74YNWPMr388suVbcxv/1133XXFmjVris2bNxfr168vrr/++qKmpqa47777iqIwt4Oh908xFIU5fiO++MUvFg8++GDx9NNPF7/61a+KCy+8sGhubq48b43kuR1WgVAURfHd7363OP7444uGhobiHe94R+VHyXh1DzzwQBER6eOyyy4riuKVH7dZuHBhMXHixGLUqFHF7Nmziw0bNlTtY8+ePcXVV19djBs3rmhsbCwuvPDC4plnnhmCsxle+prXiChuvfXWyjbmt/8+85nPVP7Ojx8/vvjABz5QiYOiMLeD4cBAMMf9V/69BvX19UVra2vxN3/zN8XGjRsr60fy3PrnngGAZNjcgwAADB8CAQBIBAIAkAgEACARCABAIhAAgEQgAACJQAAAEoEAACQCAY4An/rUp6JUKqWP//7v/x7qoQHDVN1QDwA4PObOnRu33npr1bLx48e/rn10d3dHqVSKmhrfW8Cbnb/lcIQYNWpUTJw4serjW9/6Vpx++unR1NQUkydPjquuuip2795decy//Mu/xNFHHx0//elP49RTT41Ro0bFli1boqurK7785S/HcccdF01NTXH22WfHgw8+OHQnBww4gQBHsJqamvj2t78djz/+ePzoRz+K+++/P7785S9XbfPyyy9HW1tbLFmyJDZu3Bhvectb4tOf/nQ89NBDsXTp0li/fn3Mnz8/5s6dG0899dQQnQkw0PxrjnAE+NSnPhV33HFHjB49urJs3rx5sXz58qrtli9fHp/97GfjhRdeiIhXXkH49Kc/HevWrYsZM2ZERMTvf//7eNvb3hbbtm2L1tbWymPPO++8eOc73xlf//rXD8MZAYPNPQhwhHjf+94Xt9xyS+XzpqameOCBB+LrX/96bNq0KTo6OmL//v3R2dkZL730UjQ1NUVERENDQ0yfPr3yuEcffTSKoohp06ZV7X/v3r3xZ3/2Z4fnZIBBJxDgCNHU1BQnnXRS5fMtW7bE+eefH1deeWX80z/9U4wbNy5++ctfxuWXXx779u2rbNfY2BilUqnyeU9PT9TW1sbatWujtra26hhjxowZ/BMBDguBAEeo3/72t7F///745je/WfmphGXLlh3ycWeccUZ0d3fHjh074j3vec9gDxMYIm5ShCPUiSeeGPv374/vfOc78fTTT8ftt98eixYtOuTjpk2bFpdeemksWLAg7rrrrti8eXM88sgj8Y1vfCNWrlx5GEYOHA4CAY5Qf/EXfxE333xzfOMb34jTTjstfvzjH0dbW9treuytt94aCxYsiC9+8Ytx8sknx0UXXRS//vWvY/LkyYM8auBw8VMMAEDiFQQAIBEIAEAiEACARCAAAIlAAAASgQAAJAIBAEgEAgCQCAQAIBEIAEAiEACA5P8BrQcHZLmUbLgAAAAASUVORK5CYII=",
+      "text/plain": [
+       "<Figure size 640x480 with 1 Axes>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "# Visualizing outliers in the 'Fare' column\n",
+    "sns.boxplot(x=data['Fare'])\n",
+    "plt.show()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 24,
+   "id": "39097a2d-4283-4891-86a4-92ea4d2f425f",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Capping 'Fare' to remove extreme outliers\n",
+    "upper_limit = data['Fare'].quantile(0.95)\n",
+    "data['Fare'] = np.where(data['Fare'] > upper_limit, upper_limit, data['Fare'])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ebfd6eb3-0fc0-43d3-81e4-4f98807b015c",
+   "metadata": {},
+   "source": [
+    "###  Normalize or Scale Features"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 27,
+   "id": "9e0014e5-8934-4d3b-9334-824bf45e8efb",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Selecting relevant features for scaling (e.g., 'Age', 'Fare')\n",
+    "features_to_scale = ['Age', 'Fare']"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 29,
+   "id": "2385b45c-ce71-4c71-b300-5a5722949386",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Standardizing the selected features\n",
+    "scaler = StandardScaler()\n",
+    "data[features_to_scale] = scaler.fit_transform(data[features_to_scale])"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "91b2e9ba-6735-4412-813b-cd59e9d39070",
+   "metadata": {},
+   "source": [
+    "### Data Encoding (Converting categorical features into numerical format)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 32,
+   "id": "4957ab32-6070-45a5-944c-644bb22be901",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Convert 'Sex' into numerical format (0 for female, 1 for male)\n",
+    "data['Sex'] = data['Sex'].map({'male': 1, 'female': 0})"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 34,
+   "id": "5489ec7d-2b22-4587-bfd9-fb864e4100d0",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Convert 'Embarked' into numerical format using One-Hot Encoding\n",
+    "data = pd.get_dummies(data, columns=['Embarked'], drop_first=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ade75c77-2adb-4212-9ddb-78037b5ebee0",
+   "metadata": {},
+   "source": [
+    "### Split Data into Training and Testing Sets"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 37,
+   "id": "b4637e46-9dda-4d6d-a4c0-62174741bd59",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Define X (features) and y (target)\n",
+    "X = data.drop(['Survived', 'Name', 'Ticket', 'PassengerId'], axis=1)\n",
+    "y = data['Survived']"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 39,
+   "id": "45b691f9-6c72-4e5b-8497-e9c9219863ed",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Split the data into 80% training and 20% testing\n",
+    "X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 41,
+   "id": "a74bdf50-574d-4e7c-8646-e1ab797dd451",
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Training set shape: (712, 8)\n",
+      "Testing set shape: (179, 8)\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Display shapes of the training and testing sets\n",
+    "print(\"Training set shape:\", X_train.shape)\n",
+    "print(\"Testing set shape:\", X_test.shape)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 43,
+   "id": "87a41034-4e6e-4743-8901-52d9d4b32e27",
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Pclass</th>\n",
+       "      <th>Sex</th>\n",
+       "      <th>Age</th>\n",
+       "      <th>SibSp</th>\n",
+       "      <th>Parch</th>\n",
+       "      <th>Fare</th>\n",
+       "      <th>Embarked_Q</th>\n",
+       "      <th>Embarked_S</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>331</th>\n",
+       "      <td>1</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1.240235</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0.026688</td>\n",
+       "      <td>False</td>\n",
+       "      <td>True</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>733</th>\n",
+       "      <td>2</td>\n",
+       "      <td>1</td>\n",
+       "      <td>-0.488887</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>-0.503976</td>\n",
+       "      <td>False</td>\n",
+       "      <td>True</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>382</th>\n",
+       "      <td>3</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0.202762</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0</td>\n",
+       "      <td>-0.677726</td>\n",
+       "      <td>False</td>\n",
+       "      <td>True</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>704</th>\n",
+       "      <td>3</td>\n",
+       "      <td>1</td>\n",
+       "      <td>-0.258337</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0</td>\n",
+       "      <td>-0.680150</td>\n",
+       "      <td>False</td>\n",
+       "      <td>True</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>813</th>\n",
+       "      <td>3</td>\n",
+       "      <td>0</td>\n",
+       "      <td>-1.795334</td>\n",
+       "      <td>4</td>\n",
+       "      <td>2</td>\n",
+       "      <td>0.121694</td>\n",
+       "      <td>False</td>\n",
+       "      <td>True</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "     Pclass  Sex       Age  SibSp  Parch      Fare  Embarked_Q  Embarked_S\n",
+       "331       1    1  1.240235      0      0  0.026688       False        True\n",
+       "733       2    1 -0.488887      0      0 -0.503976       False        True\n",
+       "382       3    1  0.202762      0      0 -0.677726       False        True\n",
+       "704       3    1 -0.258337      1      0 -0.680150       False        True\n",
+       "813       3    0 -1.795334      4      2  0.121694       False        True"
+      ]
+     },
+     "execution_count": 43,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "# Display first few rows of the processed training data\n",
+    "X_train.head()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "3e366ed6-0cf4-4a51-aff9-96575c68a7bb",
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.12.4"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
